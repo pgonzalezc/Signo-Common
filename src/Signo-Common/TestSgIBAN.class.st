@@ -6,10 +6,11 @@ Class {
 
 { #category : #tests }
 TestSgIBAN >> testErroneousLengthIBAN [
+
 	| iban |
 	iban := SgIBAN fromString: 'AL47 2121 1009 0000 0002 3569 8741 0'.
 	self assert: iban errors isNotEmpty.
-	self assert: iban errors size equals: 2
+	self assert: iban errors size equals: 3
 ]
 
 { #category : #tests }
