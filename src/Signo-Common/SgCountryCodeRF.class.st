@@ -96,19 +96,19 @@ SgCountryCodeRF >> error: errorCode forUser: aNif [
 
 { #category : #handling }
 SgCountryCodeRF >> handleFiltered: aRequestContext [
+
 	| contextUser nif |
-	Halt now.
 	contextUser := SgUser fromHttpRequest: aRequestContext request.
 	nif := contextUser nif.
-	(aRequestContext request uri path includes: 'error')
-		ifTrue: [ super handleFiltered: aRequestContext ].
-	contextUser nif = '09759005X'
+	(aRequestContext request uri path includes: 'error') ifTrue: [
+		super handleFiltered: aRequestContext ].
+	contextUser nif = '09759005J'
 		ifTrue: [ super handleFiltered: aRequestContext ]
-		ifFalse: [ aRequestContext
-				respond: [ :response | 
-					"redirectTo: ('/st/Services/error/403/{1}' format: {nif})"
-					response
-						status: WAResponse statusForbidden;
-						contentType: WAMimeType textHtml;
-						nextPutAll: ('El usuario con nif {1} no está autorizado' format: {nif}) ] ]
+		ifFalse: [
+			aRequestContext respond: [ :response |
+				response
+					status: WAResponse statusForbidden;
+					contentType: WAMimeType textHtml;
+					nextPutAll:
+						('El usuario con nif {1} no está autorizado' format: { nif }) ] ]
 ]
