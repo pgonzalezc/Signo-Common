@@ -11,6 +11,27 @@ SgSimpleServlet class >> initialize [
 	WAAdmin register: self at: 'SimpleServlet' 
 ]
 
+{ #category : #'error handling' }
+SgSimpleServlet >> error: anError [
+
+	^ WAHtmlCanvas builder fullDocument: true; 
+		rootBlock: [ :aRoot | 
+			aRoot beHtml5.
+			aRoot meta charset: 'utf-8'.
+			aRoot title: 'Lenguajes'.
+			aRoot meta name: 'viewport'; content: 'width=device-width, initial-scale=1.0'.
+			aRoot javascript url: '/static-files/js/jquery/jquery.min.js'.
+			aRoot stylesheet url: '/static-files/css/materialize/materialize.min.css'
+			 ];
+		render: [ :html | 
+			html div class: 'container'; with: [ 
+				html heading level: 3; with: 'Error procesando los lenguajes'.
+				html text: (String streamContents: [ :s | 
+					s << ('Error: {1} descripcion: {2}' format: { anError class name . anError messageText }) ])
+				 ]
+		]
+]
+
 { #category : #'as yet unclassified' }
 SgSimpleServlet >> generaListaLenguajes [
 
@@ -31,9 +52,43 @@ SgSimpleServlet >> generaListaLenguajes [
 { #category : #handling }
 SgSimpleServlet >> handleFiltered: aRequestContext [ 
 	
+	| lenguajes |
+	[ lenguajes := self listaLenguajes. ]
+		on: Error do: [ :ex | 
+			^ aRequestContext respond: [ :response |
+				response 
+					status: WAResponse statusInternalServerError;
+					contentType: WAMimeType textHtml ;
+					nextPutAll: (self error: ex) ]
+	 ].
 	aRequestContext respond: [ :response |
 		response  
 			status: WAResponse statusOk;
 			contentType: WAMimeType textHtml;
-			nextPutAll: self generaListaLenguajes ]
+			nextPutAll: lenguajes ] 
+]
+
+{ #category : #'as yet unclassified' }
+SgSimpleServlet >> listaLenguajes [
+
+	1/0.
+	^ WAHtmlCanvas builder fullDocument: true; 
+		rootBlock: [ :aRoot | 
+			aRoot beHtml5.
+			aRoot meta charset: 'utf-8'.
+			aRoot title: 'Lenguajes'.
+			aRoot meta name: 'viewport'; content: 'width=device-width, initial-scale=1.0'.
+			aRoot javascript url: '/static-files/js/jquery/jquery.min.js'.
+			aRoot stylesheet url: '/static-files/css/materialize/materialize.min.css'
+			 ];
+		render: [ :html | 
+			html heading level: 3; with: 'Listado de lenguajes'.
+			html table: [ 
+				html tableHead: [ html tableHeading: 'Código';tableHeading: 'Descripción'	 ].
+				html tableBody:  [ 
+					WALocale iso2Languages associationsDo: [ :each |  
+						html tableRow: [ 
+							html tableData: each key.
+							html tableData: each value
+						] ] ] ] ]
 ]
